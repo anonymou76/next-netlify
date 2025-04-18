@@ -8,8 +8,8 @@
   </head>
   <body>
     <div class="container">
-      <h1>Contact Us</h1>
-      <form name="contact" netlify action="/thankyou.html">
+      <h1>Submit file</h1>
+      <form method="POST" data-netlify="true" action="/thankyou.html">
         <div class="form-control">
             <input type="text" required>
             <label>Name</label>
@@ -17,24 +17,16 @@
         <div class="form-control">
           <input type="text" required>
           <label>Email</label>
-          <!-- <label>
-            <span style="transition-delay: 0ms">E</span>
-              <span style="transition-delay: 50ms">m</span>
-              <span style="transition-delay: 100ms">a</span>
-              <span style="transition-delay: 150ms">i</span>
-              <span style="transition-delay: 200ms">l</span>
-        </label> -->
         </div>
 
         <div class="form-control">
-          <input type="file">
+          <input type="file" required>
           <label>File</label>
         </div>
 
-        <button class="btn">Submit</button>
-
-        <p class="text"><a href="#">Home</a> </p>
+        <button class="btn" type="submit">Submit</button>
       </form>
+      <p class="text"><a href="#">Home</a> </p>
     </div>
     <script src="script.js"></script>
   </body>
