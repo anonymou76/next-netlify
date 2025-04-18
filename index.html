@@ -1,20 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple JavaScript Project</title>
-</head>
-<body>
-    <div id="__next">
-        <div class="container">
-            <main>
-                <h1 class="title">Welcome to my app!</h1>
-                <p class="description">Get started by editing <code>pages/index.js</code></p>
-                <h2><a href="./contact.html">Contact Us</a></h2>
-            </main>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>mybxssdomain</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Contact Us</h1>
+      <form name="contact" netlify action="/thankyou.html">
+        <div class="form-control">
+            <input type="text" required>
+            <label>Name</label>
         </div>
+        <div class="form-control">
+          <input type="text" required>
+          <label>Email</label>
+          <!-- <label>
+            <span style="transition-delay: 0ms">E</span>
+              <span style="transition-delay: 50ms">m</span>
+              <span style="transition-delay: 100ms">a</span>
+              <span style="transition-delay: 150ms">i</span>
+              <span style="transition-delay: 200ms">l</span>
+        </label> -->
+        </div>
+
+        <div class="form-control">
+          <input type="file">
+          <label>File</label>
+        </div>
+
+        <button class="btn">Submit</button>
+
+        <p class="text"><a href="#">Home</a> </p>
+      </form>
     </div>
-    <script src="app.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
