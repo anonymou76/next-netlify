@@ -3,3 +3,6 @@
 
   publish = "."
   command = ""
+  functions = "functions"
+
+[dev]
