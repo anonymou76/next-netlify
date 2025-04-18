@@ -11,28 +11,20 @@
       <h1>Submit file</h1>
       <form name="contact" method="POST" data-netlify="true" enctype="multipart/form-data" action="/thankyou.html">
         <div class="form-control">
-          <label>
-            Name
             <input type="text" name="name" required>
-          </label>
+            <label>Name</label>
         </div>
-      
         <div class="form-control">
-          <label>
-            Email
             <input type="email" name="email" required>
-          </label>
+          <label>Email</label>
         </div>
-      
+
         <div class="form-control">
-          <label>
-            File
-            <input type="file" name="file" required>
-          </label>
+          <input type="file" name="file">
         </div>
-      
+
         <button class="btn" type="submit">Submit</button>
-      </form>      
+      </form>
       <p class="text"><a href="#">Home</a> </p>
     </div>
     <script src="script.js"></script>
