@@ -14,14 +14,24 @@ export const handler = async () => {
     const result = await store.get("latest");
 
     if (!result || !result.content) {
-      return { statusCode: 404, body: "No image found" };
+      return { statusCode: 404, body: "No image found - result.content empty" };
     }
 
-    // Tu sa robí dôležitý krok - parsovanie JSON
-    const parsed = JSON.parse(result.content);
+    let parsed;
+    try {
+      parsed = JSON.parse(result.content);
+    } catch (jsonErr) {
+      return {
+        statusCode: 500,
+        body: `JSON parse error: ${jsonErr.message}\nRaw content: ${result.content}`,
+      };
+    }
 
     if (!parsed.content || !parsed.mimetype) {
-      return { statusCode: 404, body: "Invalid blob data" };
+      return {
+        statusCode: 404,
+        body: `Invalid blob data. Parsed: ${JSON.stringify(parsed)}`,
+      };
     }
 
     return {
@@ -35,7 +45,7 @@ export const handler = async () => {
   } catch (err) {
     return {
       statusCode: 500,
-      body: `Error retrieving latest upload: ${err.message}`,
+      body: `General error: ${err.message}`,
     };
   }
 };
