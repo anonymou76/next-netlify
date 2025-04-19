@@ -53,8 +53,8 @@
         // ==== NASTAVTE SI VLASTNÉ HODNOTY Z VÁŠHO AUTH0 TENANTA A APLIKÁCIE ====
         // V produkcii by ste mali získať tieto hodnoty z environmentálnych premenných Netlify!
         const auth0Config = {
-            domain: "dev-cdka82baw7pg4ujy.auth0.com", // Napr. dev-xxxxx.eu.auth0.com
-            clientId: "FGhMyq3iapfmEAHc2IPDOdCJ53PFDH1G",     // ID vašej SPA aplikácie v Auth0
+            domain: process.env.SECRET_AUTH0_DOMAIN, // Napr. dev-xxxxx.eu.auth0.com
+            clientId: process.env.SECRET_AUTH0_CLIENT_ID,     // ID vašej SPA aplikácie v Auth0
             authorizationParams: {
                  redirect_uri: window.location.origin // URL, na ktorú sa Auth0 vráti po prihlásení
             }
