@@ -13,9 +13,11 @@
       </style>
   </head>
   <body>
-    <div class="container">
+    <div class="container" style="background-color: rgba(0, 0, 0, 0.4);
+    padding: 25px 50px;
+    border-radius: 5px;">
       <h1>Submit form</h1>
-      <form name="contact" method="POST" data-netlify="true" enctype="multipart/form-data" data-netlify-recaptcha="true" netlify-honeypot="bot-field" action="/upload">
+      <form name="contact" method="POST" data-netlify="true" enctype="multipart/form-data" data-netlify-recaptcha="true" netlify-honeypot="bot-field" action="/thankyou.html">
   
         <input type="hidden" id="user-field" name="user" />
       
@@ -60,27 +62,7 @@
         <button class="btn" type="submit" style="font-size: 20px">Submit</button>
       </form>
       
-      <script>
-        document.querySelector("form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const form = e.target;
-        const formData = new FormData(form);
-
-        const user = document.getElementById("user-field").value;
-        formData.append("user", user);
-
-        await fetch("/.netlify/functions/save-to-blobs", {
-          method: "POST",
-          body: formData,
-        });
-
-        form.submit(); // pokračuj v klasickom Netlify form submit
-      });
-      </script>
-      
-      
-      <p class="text"><a href="/">Home</a></p>
+      <p class="text"><a href="/">Home </a> / <a href="/blobs.html"> Blobs </a></p>
     </div>
     <script src="script.js"></script>
   </body>

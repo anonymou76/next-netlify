@@ -13,14 +13,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/anonymou76/next-netlify/issues"
   },
   "homepage": "https://github.com/anonymou76/next-netlify#readme",
   "dependencies": {
     "@netlify/blobs": "^8.2.0",
-    "@netlify/functions": "^3.1.2",
+    "@netlify/functions": "^3.0.4",
     "busboy": "^1.6.0"
   }
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="style.css" />
+  <title>mybxssdomain</title>
+</head>
+<body>
+    <div style="background-color: rgba(0, 0, 0, 0.4);
+  padding: 30px 80px;
+  border-radius: 5px;" class="container">
+  <h1 style="margin-top: 30px;">Upload image to Netlify Blobs</h1>
+
+  <form id="upload-form" enctype="multipart/form-data" method="POST" action="/.netlify/functions/upload-handler">
+
+    <div style="position: relative;
+    margin: 50px 0 35px;
+    width: 200px;">
+    <input type="file" id="file" name="file" accept="image/*" required />
+    </div>
+    <div style="position: relative;
+    margin: 20px 0 35px;
+    width: 400px;">
+    <button style="cursor: pointer;
+    display: inline-block;
+    width: 65%;
+    background: rgb(148, 194, 206);
+    padding: 15px;
+    font-family: inherit;
+    font-size: 16px;
+    border: 0;
+    border-radius: 5px;" type="submit">Upload</button>
+    </div>
+  </form>
+
+  <hr />
+
+  <p class="text"><a href="/">Home</a> / <a href="/form.html"> Form </a></p>
+  </div>
+
+  <br>
+  <br>
+
+  <h2>Last uploaded image:</h2>
+  <img id="latest-image" src="/.netlify/functions/latest-upload" alt="Latest uploaded image" style="max-width: 100%; border: 1px solid #ccc;" />
+</body>
+</html>

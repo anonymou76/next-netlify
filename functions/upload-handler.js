@@ -1,0 +1,59 @@
+// netlify/functions/upload-handler.js
+
+import { set } from "@netlify/blobs";
+import Busboy from "busboy";  // Nezabúdame na správny import
+
+// Vypneme defaultné spracovanie body, lebo parsujeme multipart sami
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export const handler = async (event) => {
+  const headers = event.headers;
+  // Ak je body Base64, prekonvertujeme na buffer
+  const bodyBuffer = event.isBase64Encoded
+    ? Buffer.from(event.body, "base64")
+    : Buffer.from(event.body, "utf-8");
+
+  return new Promise((resolve, reject) => {
+    const busboy = Busboy({ headers });  // Tu je zmena na použitie bez 'new'
+    let fileBuffer = Buffer.alloc(0);
+    let filename = "";
+    let mimetype = "";
+
+    // Pri načítaní súboru ukladaj dátové kúsky do bufferu
+    busboy.on("file", (fieldname, file, fname, encoding, mimetypeArg) => {
+      filename = fname;
+      mimetype = mimetypeArg;
+      file.on("data", (chunk) => {
+        fileBuffer = Buffer.concat([fileBuffer, chunk]);
+      });
+    });
+
+    // Keď je parsing hotový, ulož do Blobs a redirectni
+    busboy.on("finish", async () => {
+      try {
+        const timestamp = new Date().toISOString();
+        await set("images", "latest", {
+          filename,
+          mimetype,
+          content: fileBuffer.toString("base64"),
+          timestamp,
+        });
+        resolve({
+          statusCode: 302,
+          headers: { Location: "/blobs.html" },
+        });
+      } catch (err) {
+        resolve({
+          statusCode: 500,
+          body: `Error saving blob: ${err.message}`,
+        });
+      }
+    });
+
+    busboy.end(bodyBuffer);
+  });
+};
