@@ -1,30 +1,25 @@
 // netlify/functions/upload-handler.js
 
-import { set } from "@netlify/blobs";
-import Busboy from "busboy";  // Nezabúdame na správny import
+import Busboy from "busboy";           // tvoje fungujúce parsovanie
+import { getStore } from "@netlify/blobs";  // oficiálny import store
 
-// Vypneme defaultné spracovanie body, lebo parsujeme multipart sami
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+  api: { bodyParser: false },
 };
 
 export const handler = async (event) => {
   const headers = event.headers;
-  // Ak je body Base64, prekonvertujeme na buffer
   const bodyBuffer = event.isBase64Encoded
     ? Buffer.from(event.body, "base64")
     : Buffer.from(event.body, "utf-8");
 
-  return new Promise((resolve, reject) => {
-    const busboy = Busboy({ headers });  // Tu je zmena na použitie bez 'new'
-    let fileBuffer = Buffer.alloc(0);
-    let filename = "";
-    let mimetype = "";
+  return new Promise((resolve) => {
+    const busboy = Busboy({ headers });
+    let fileBuffer = Buffer.alloc(0),
+        filename = "",
+        mimetype = "";
 
-    // Pri načítaní súboru ukladaj dátové kúsky do bufferu
-    busboy.on("file", (fieldname, file, fname, encoding, mimetypeArg) => {
+    busboy.on("file", (_field, file, fname, _enc, mimetypeArg) => {
       filename = fname;
       mimetype = mimetypeArg;
       file.on("data", (chunk) => {
@@ -32,16 +27,24 @@ export const handler = async (event) => {
       });
     });
 
-    // Keď je parsing hotový, ulož do Blobs a redirectni
     busboy.on("finish", async () => {
       try {
         const timestamp = new Date().toISOString();
-        await set("images", "latest", {
+
+        // **Získame store**, v ktorom budeme držať posledný upload
+        const userUploadStore = getStore("userupload", {
+          consistency: "strong",    // optional, ak potrebuješ silnú konzistenciu
+        });
+
+        // **Uložíme** blob pod kľúč "latest"
+        await userUploadStore.set("latest", {
           filename,
           mimetype,
           content: fileBuffer.toString("base64"),
           timestamp,
         });
+
+        // **Redirect** späť na blobs.html
         resolve({
           statusCode: 302,
           headers: { Location: "/blobs.html" },

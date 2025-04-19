@@ -1,11 +1,18 @@
 // netlify/functions/latest-upload.js
 
-import { get } from "@netlify/blobs";
+import { getStore } from "@netlify/blobs";
 
 export const handler = async () => {
   try {
-    // Načítať najnovší obrázok zo store
-    const result = await get("images", "latest");
+    // Získame store so silnou konzistenciou a správnou konfiguráciou
+    const store = getStore("userupload", {
+      siteId: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_API_TOKEN,
+      consistency: "strong",
+    });
+
+    // Načítame posledný upload
+    const result = await store.get("latest");
 
     if (!result || !result.content) {
       return {
@@ -14,12 +21,14 @@ export const handler = async () => {
       };
     }
 
-    // Vytvoríme URL pre Base64 obrázok
-    const imgData = `data:${result.mimetype};base64,${result.content}`;
-    
+    // Vracia base64 telo ako binárny obraz so správnym Content-Type
     return {
       statusCode: 200,
-      body: imgData, // Vrátime Base64 obrázok ako odpoveď
+      isBase64Encoded: true,
+      headers: {
+        "Content-Type": result.mimetype,
+      },
+      body: result.content,
     };
   } catch (err) {
     return {
