@@ -27,8 +27,6 @@ export const handler = async (event) => {
 
     busboy.on("finish", async () => {
       try {
-        const timestamp = new Date().toISOString();
-
         const store = getStore({
           name: "userupload",
           consistency: "strong",
@@ -36,16 +34,11 @@ export const handler = async (event) => {
           token: process.env.NETLIFY_TOKEN,
         });
 
-        // Uložíme serializovaný objekt
-        await store.set(
-          "latest",
-          JSON.stringify({
-            filename,
-            mimetype,
-            content: fileBuffer.toString("base64"),
-            timestamp,
-          })
-        );
+        await store.set("latest", fileBuffer.toString("base64"), {
+          filename,
+          mimetype,
+          timestamp: new Date().toISOString(),
+        });
 
         resolve({
           statusCode: 302,
