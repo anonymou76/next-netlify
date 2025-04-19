@@ -3,13 +3,6 @@
   command = ""
   functions = "functions"
 
-[[redirects]]
-  from = "/form"
-  to = "/"
-  status = 302
-  force = false
-  conditions = { Role = ["unauthenticated"] }
-
 [dev]
   functions = "functions"
   publish = "."
