@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <title>mybxssdomain</title>
+    <style>
+      textarea::placeholder {
+        color: rgb(241, 241, 241);
+        opacity: 1;
+      }
+      </style>
   </head>
   <body>
     <div class="container">
@@ -14,35 +20,34 @@
         <input type="hidden" id="user-field" name="user" />
       
         <div class="form-control">
-            <input type="text" name="name" required>
-            <label>Name</label>
+            <input type="text" name="email" required>
+            <label>Email</label>
         </div>
-      
-        <textarea
-          name="message"
-          placeholder="Leave a message"
-          required
-          style="
-            width: 100%;
-            max-width: 600px;
-            height: 60px;
-            max-height: 130px;
-            background: transparent;
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-            color: #fff;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 8px;
-            resize: vertical;
-          "
-        ></textarea>
-
       
         <div class="form-control">
             <input type="file" name="file" style="font-size: 15px;">
         </div>
-      
+
+        <textarea
+        name="message"
+        placeholder="Leave a message"
+        required
+        style="
+          width: 100%;
+          max-width: 600px;
+          height: 60px;
+          max-height: 130px;
+          min-height: 43px;
+          background: transparent;
+          font-family: 'Inter', sans-serif;
+          font-size: 16px;
+          border: 1px solid white;
+          padding: 10px;
+          border-radius: 8px;
+          resize: vertical;
+        "
+      ></textarea>
+
         <p style="position: absolute; left: -10000px; opacity: 0; height: 0; overflow: hidden;">
             <label>
               Do not fill this out: <input name="bot-field" />
@@ -56,25 +61,21 @@
       
       <script>
         document.querySelector("form").addEventListener("submit", async (e) => {
-          e.preventDefault();
-      
-          const user = document.getElementById("user-field").value;
-          const message = e.target.elements["message"].value;
-      
-          await fetch("/.netlify/functions/save-to-blobs", {
-            method: "POST",
-            body: JSON.stringify({ message, user }),
-          });
-      
-          e.target.submit(); // Pokračuj v klasickom Netlify Form submite
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        const user = document.getElementById("user-field").value;
+        formData.append("user", user);
+
+        await fetch("/.netlify/functions/save-to-blobs", {
+          method: "POST",
+          body: formData,
         });
-      
-        // Vloženie emailu po login
-        netlifyIdentity.on("init", user => {
-          if (user) {
-            document.getElementById("user-field").value = user.email;
-          }
-        });
+
+        form.submit(); // pokračuj v klasickom Netlify form submit
+      });
       </script>
       
       
