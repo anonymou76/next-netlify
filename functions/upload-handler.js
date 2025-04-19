@@ -1,46 +1,64 @@
+// netlify/functions/upload-handler.js
+
+import Busboy from "busboy";
 import { getStore } from "@netlify/blobs";
 
+export const config = { api: { bodyParser: false } };
+
 export const handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+  const headers = event.headers;
+  const bodyBuffer = event.isBase64Encoded
+    ? Buffer.from(event.body, "base64")
+    : Buffer.from(event.body, "utf-8");
 
-  const formData = new URLSearchParams(event.body);
-  const fileUpload = formData.get("fileUpload");
+  return new Promise((resolve) => {
+    const busboy = Busboy({ headers });
+    let fileBuffer = Buffer.alloc(0);
+    let filename = "";
+    let mimetype = "";
 
-  if (!fileUpload) {
-    return {
-      statusCode: 400,
-      body: "No file uploaded",
-    };
-  }
+    busboy.on("file", (_fieldname, file, fname, _enc, mimetypeArg) => {
+      filename = fname;
+      mimetype = mimetypeArg;
+      file.on("data", (chunk) => {
+        fileBuffer = Buffer.concat([fileBuffer, chunk]);
+      });
+    });
 
-  const timestamp = Date.now();
+    busboy.on("finish", async () => {
+      try {
+        const timestamp = new Date().toISOString();
 
-  const userUploadStore = getStore({
-    name: "UserUpload",
-    consistency: "strong",
-    siteID: process.env.NETLIFY_SITE_ID,
-    token: process.env.NETLIFY_TOKEN,
+        const store = getStore({
+          name: "userupload",
+          consistency: "strong",
+          siteID: process.env.NETLIFY_SITE_ID,
+          token: process.env.NETLIFY_TOKEN,
+        });
+
+        // Uložíme serializovaný objekt
+        await store.set(
+          "latest",
+          JSON.stringify({
+            filename,
+            mimetype,
+            content: fileBuffer.toString("base64"),
+            timestamp,
+          })
+        );
+
+        resolve({
+          statusCode: 302,
+          headers: { Location: "/blobs.html" },
+        });
+      } catch (err) {
+        resolve({
+          statusCode: 500,
+          body: `Error saving blob: ${err.message}`,
+        });
+      }
+    });
+
+    busboy.end(bodyBuffer);
   });
-
-  try {
-    // Predpokladáme, že 'fileUpload' je reťazec (napr. Base64 encoded data)
-    // Ak odosielaš FormData s reálnym súborom, budeš musieť použiť knižnicu ako 'busboy' alebo 'formidable'
-    // na jeho spracovanie a získanie obsahu ako Buffer alebo Blob.
-    // Pre jednoduchosť predpokladáme, že posielaš priamo obsah ako reťazec.
-    await userUploadStore.set(timestamp.toString(), fileUpload);
-
-    return {
-      statusCode: 303,
-      headers: {
-        Location: "/",
-      },
-    };
-  } catch (err) {
-    return {
-      statusCode: 500,
-      body: `Error saving blob: ${err.message}`,
-    };
-  }
 };
