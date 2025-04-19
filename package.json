@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/anonymou76/next-netlify#readme",
   "dependencies": {
+    "@netlify/blobs": "^8.2.0",
     "busboy": "^1.6.0"
   }
 }

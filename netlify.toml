@@ -1,11 +1,11 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["busboy"]
+  external_node_modules = ["busboy", "@netlify/blobs"]
 
 [build]
   publish = "."
-  command = ""
+  command = "npm install"
   functions = "functions"
 
 [dev]
