@@ -10,7 +10,7 @@
             margin-bottom: 20px;
         }
         #protected-content {
-            display: none; /* Skryté, kým sa používateľ neprihlási */
+            display: none; 
             border: 1px solid #ccc;
             padding: 15px;
             margin-top: 20px;
@@ -18,7 +18,6 @@
         .hidden {
             display: none;
         }
-         /* Základný štýl pre container, buttons a text, ak nemáte style.css */
         .container {
             background-color: rgba(0, 0, 0, 0.4);
             padding: 25px 50px;
@@ -53,20 +52,16 @@
 
         <div id="auth-nav">
             <button class="btn" id="login-btn">Login</button>
-            <button class="btn" id="logout-btn" class="hidden">Odhlásiť sa</button>
+            <button class="btn" id="logout-btn" class="hidden">Logout</button>
         </div>
 
         <div id="user-info" class="hidden">
-            <h2>Informácie o používateľovi:</h2>
-            <p><strong>Meno:</strong> <span id="user-name"></span></p>
+            <h2>Info about user:</h2>
+            <p><strong>Name:</strong> <span id="user-name"></span></p>
             <p><strong>Email:</strong> <span id="user-email"></span></p>
         </div>
 
         <p class="text"><a href="/">Home </a> / <a href="/blobs.html"> Blobs </a> / <a href="/form.html"> Form </a></p>
-        <div id="protected-content">
-            <h2>Táto časť je len pre prihlásených používateľov!</h2>
-            <p>Ak toto vidíte, ste úspešne prihlásení cez Auth0.</p>
-        </div>
     </div>
 
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
@@ -79,7 +74,7 @@
             domain: "__AUTH0_DOMAIN__", // TENTO ZÁSTUPNÝ TEXT BUDE NAHRADENÝ
             clientId: "__AUTH0_CLIENT_ID__",     // TENTO ZÁSTUPNÝ TEXT BUDE NAHRADENÝ
             authorizationParams: {
-                 redirect_uri: window.location.origin // URL, na ktorú sa Auth0 vráti po prihlásení
+                 redirect_uri: window.location.origin + "/auth0.html" 
             }
         };
         // ==================================================================
@@ -91,47 +86,36 @@
         const userEmailSpan = document.getElementById("user-email");
         const protectedContentDiv = document.getElementById("protected-content");
 
-        // Inicializácia Auth0 klienta
         const configureClient = async () => {
-             // Kontrola, či sú hodnoty Domain a ClientId nahradené
             if (auth0Config.domain.startsWith("__AUTH0_") || auth0Config.clientId.startsWith("__AUTH0_")) {
                 console.error("Auth0 Domain or Client ID were not properly replaced during build.");
-                // Môžete tu pridať zobrazenie chyby používateľovi alebo presmerovanie
-                return; // Zastaviť inicializáciu, ak hodnoty nie sú správne
+                return; 
             }
 
             try {
                auth0Client = await auth0.createAuth0Client(auth0Config);
 
-                // Po inicializácii skontrolujte stav prihlásenia a aktualizujte UI
                 await updateUI();
 
-                // Skontrolujte, či ide o callback z Auth0 (po prihlásení/registrácii)
                 const query = window.location.search;
                 if (query.includes("code=") && query.includes("state=")) {
                     try {
                         await auth0Client.handleRedirectCallback();
                         console.log("Redirect callback handled.");
-                        // Odstráňte parametry z URL pre čistejší vzhľad
-                        window.history.replaceState({}, document.title, "/auth0.html"); // Zmeňte '/' na cestu k tejto stránke ak nie je root
+                        window.history.replaceState({}, document.title, "/auth0.html"); 
                     } catch (e) {
                         console.error("Error handling redirect callback:", e);
-                        // V prípade chyby pri spracovaní callbacku môžete tiež zobraziť chybu alebo presmerovať
                     }
-                    // Aktualizujte UI znova po spracovaní callbacku
                     await updateUI();
                 }
             } catch (error) {
                  console.error("Failed to initialize Auth0 client:", error);
-                // V prípade chyby pri inicializácii (napr. nesprávne konfiguračné údaje)
-                // Môžete tu zobraziť chybovú správu používateľovi
             }
         };
 
 
-        // Aktualizácia UI na základe stavu prihlásenia
         const updateUI = async () => {
-            if (!auth0Client) return; // Ensure client is initialized
+            if (!auth0Client) return; 
 
             const isAuthenticated = await auth0Client.isAuthenticated();
 
@@ -142,7 +126,7 @@
                 loginBtn.classList.add("hidden");
                 logoutBtn.classList.remove("hidden");
                 userInfoDiv.classList.remove("hidden");
-                protectedContentDiv.style.display = "block"; // Zobraziť chránený obsah
+                protectedContentDiv.style.display = "block"; 
 
                 userNameSpan.textContent = user.name || user.nickname || user.email || "Neznáme meno/email";
                 userEmailSpan.textContent = user.email || "Neznámy email";
@@ -152,14 +136,14 @@
                 loginBtn.classList.remove("hidden");
                 logoutBtn.classList.add("hidden");
                 userInfoDiv.classList.add("hidden");
-                protectedContentDiv.style.display = "none"; // Skryť chránený obsah
+                protectedContentDiv.style.display = "none"; 
 
                 userNameSpan.textContent = "";
                 userEmailSpan.textContent = "";
             }
         };
 
-        // Funkcia pre prihlásenie
+
         const login = async () => {
              if (!auth0Client) {
                  console.error("Auth0 client not initialized.");
@@ -172,13 +156,13 @@
             }
         };
 
-        // Funkcia pre odhlásenie
+
         const logout = async () => {
-            if (!auth0Client) return; // Ensure client is initialized
+            if (!auth0Client) return; 
             try {
                await auth0Client.logout({
                    logoutParams: {
-                       returnTo: window.location.origin // URL, na ktorú sa vráti po odhlásení
+                       returnTo: window.location.origin + "/auth0.html"
                    }
                });
             } catch (error) {
@@ -186,14 +170,11 @@
             }
         };
 
-        // Pridanie poslucháčov na tlačidlá
-        // Pridávame poslucháčov až po inicializácii klienta
-        // (alebo sa uistíme, že funkcie login/logout kontrolujú null klienta)
+
          loginBtn.addEventListener("click", login);
          logoutBtn.addEventListener("click", logout);
 
 
-        // Konfigurácia klienta pri načítaní stránky
         configureClient();
 
     </script>
