@@ -10,32 +10,74 @@
     <div class="container">
       <h1>Submit form</h1>
       <form name="contact" method="POST" data-netlify="true" enctype="multipart/form-data" data-netlify-recaptcha="true" netlify-honeypot="bot-field" action="/thankyou.html">
+  
+        <input type="hidden" id="user-field" name="user" />
+      
         <div class="form-control">
             <input type="text" name="name" required>
             <label>Name</label>
         </div>
-        <div class="form-control">
-            <input type="email" name="email" required>
-          <label>Email</label>
-        </div>
+      
+        <textarea
+          name="message"
+          placeholder="Leave a message"
+          required
+          style="
+            width: 100%;
+            max-width: 600px;
+            height: 60px;
+            max-height: 130px;
+            background: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            resize: vertical;
+          "
+        ></textarea>
 
+      
         <div class="form-control">
             <input type="file" name="file" style="font-size: 15px;">
         </div>
-
+      
         <p style="position: absolute; left: -10000px; opacity: 0; height: 0; overflow: hidden;">
             <label>
               Do not fill this out: <input name="bot-field" />
             </label>
         </p>
-
-        </p>
-            <div data-netlify-recaptcha="true"></div>
-        <p>
+      
+        <div data-netlify-recaptcha="true"></div>
+      
         <button class="btn" type="submit" style="font-size: 20px">Submit</button>
-
       </form>
-
+      
+      <script>
+        document.querySelector("form").addEventListener("submit", async (e) => {
+          e.preventDefault();
+      
+          const user = document.getElementById("user-field").value;
+          const message = e.target.elements["message"].value;
+      
+          await fetch("/.netlify/functions/save-to-blobs", {
+            method: "POST",
+            body: JSON.stringify({ message, user }),
+          });
+      
+          e.target.submit(); // Pokračuj v klasickom Netlify Form submite
+        });
+      
+        // Vloženie emailu po login
+        netlifyIdentity.on("init", user => {
+          if (user) {
+            document.getElementById("user-field").value = user.email;
+          }
+        });
+      </script>
+      
+      
       <p class="text"><a href="/">Home</a></p>
     </div>
     <script src="script.js"></script>
