@@ -1,8 +1,15 @@
-
 [build]
-
   publish = "."
   command = ""
   functions = "functions"
 
+[[redirects]]
+  from = "/form.html"
+  to = "/"
+  status = 302
+  force = false
+  conditions = { Role = ["unauthenticated"] }
+
 [dev]
+  functions = "functions"
+  publish = "."

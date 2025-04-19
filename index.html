@@ -1,43 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <title>mybxssdomain</title>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Submit file</h1>
-      <form name="contact" method="POST" data-netlify="true" enctype="multipart/form-data" data-netlify-recaptcha="true" netlify-honeypot="bot-field" action="/thankyou.html">
-        <div class="form-control">
-            <input type="text" name="name" required>
-            <label>Name</label>
-        </div>
-        <div class="form-control">
-            <input type="email" name="email" required>
-          <label>Email</label>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="style.css" />
+  <title>mybxssdomain</title>
+</head>
+<body>
+  <div class="container">
 
-        <div class="form-control">
-            <input type="file" name="file" style="font-size: 15px;">
-        </div>
+  <div class="form-control">
+    <h1>Please log in</h1>
+  </div>
 
-        <p style="position: absolute; left: -10000px; opacity: 0; height: 0; overflow: hidden;">
-            <label>
-              Don not fill this out: <input name="bot-field" />
-            </label>
-        </p>
 
-        </p>
-            <div data-netlify-recaptcha="true"></div>
-        <p>
-        <button class="btn" type="submit" style="font-size: 20px">Submit</button>
+  <button class="btn" id="login-btn">Login</button>
+  <button class="btn" id="logout-btn" style="display:none;">Logout</button>
+  <p class="text"><a href="#">Home</a> </p>
 
-      </form>
+  <!-- Netlify Identity Widget -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    netlifyIdentity.init();
 
-      <p class="text"><a href="#">Home</a> </p>
-    </div>
-    <script src="script.js"></script>
-  </body>
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    loginBtn.onclick = () => netlifyIdentity.open();
+    logoutBtn.onclick = () => netlifyIdentity.logout();
+
+    netlifyIdentity.on("init", user => {
+      if (user) {
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+      } else {
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+      }
+    });
+
+    netlifyIdentity.on("login", user => {
+      console.log("Logged in:", user);
+      window.location.href = "/form.html";
+    });
+
+    netlifyIdentity.on("logout", () => {
+      console.log("Logged out");
+      window.location.reload();
+    });
+  </script>
+  </div>
+</body>
 </html>
