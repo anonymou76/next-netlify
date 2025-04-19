@@ -33,11 +33,11 @@ export const handler = async (event) => {
           token: process.env.NETLIFY_TOKEN,
         });
 
-        // Ulož buffer priamo
+        // Uložíme obrázok s MIME typom a metadátami
         await store.set("latest", fileBuffer, {
           metadata: {
             filename,
-            mimetype,
+            mimetype,  // Dôležité je priradiť správny mimetype
             uploaded: new Date().toISOString(),
           },
         });

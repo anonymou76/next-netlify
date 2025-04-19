@@ -17,16 +17,17 @@ export const handler = async () => {
       return { statusCode: 404, body: "No image found" };
     }
 
+    // Získať MIME typ z metadát uloženého súboru
     const contentType = result.metadata?.mimetype || "application/octet-stream";
 
     return {
       statusCode: 200,
-      isBase64Encoded: true, // Potrebné, ak vraciaš binárny obsah
+      isBase64Encoded: true, // Potrebné pre binárne dáta
       headers: {
         "Content-Type": contentType,
         "Cache-Control": "no-store",
       },
-      body: result.content.toString("base64"),
+      body: result.content.toString("base64"), // Vráti obrázok ako base64
     };
   } catch (err) {
     return {
