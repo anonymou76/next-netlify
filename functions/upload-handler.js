@@ -18,7 +18,7 @@ export const handler = async (event) => {
     let mimetype = "";
 
     busboy.on("file", (_fieldname, file, fname, _enc, mimetypeArg) => {
-      filename = fname;
+      filename = fname; // Uistíme sa, že 'filename' je reťazec
       mimetype = mimetypeArg;
 
       file.on("data", (chunk) => {
@@ -29,18 +29,22 @@ export const handler = async (event) => {
     busboy.on("finish", async () => {
       try {
         const store = getStore({
-          name: "userupload", // Môžeš si nastaviť akýkoľvek názov pre Blob úložisko
+          name: "userupload",
           consistency: "strong",
           siteID: process.env.NETLIFY_SITE_ID,
           token: process.env.NETLIFY_TOKEN,
         });
 
-        // Uložíme obrázok s pôvodným názvom
+        // Skontrolujeme, či je filename reťazec, a použijeme ho ako kľúč
+        if (typeof filename !== "string") {
+          throw new Error("Filename must be a string");
+        }
+
         await store.set(filename, fileBuffer, { mimetype });
 
         resolve({
           statusCode: 302,
-          headers: { Location: "/blobs.html" }, // Po úspešnom nahratí presmeruj na inú stránku
+          headers: { Location: "/blobs.html" },
         });
       } catch (err) {
         resolve({
