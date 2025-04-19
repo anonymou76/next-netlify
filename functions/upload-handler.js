@@ -1,11 +1,9 @@
 // netlify/functions/upload-handler.js
 
-import Busboy from "busboy";           // tvoje fungujúce parsovanie
-import { getStore } from "@netlify/blobs";  // oficiálny import store
+import Busboy from "busboy";
+import { getStore } from "@netlify/blobs";
 
-export const config = {
-  api: { bodyParser: false },
-};
+export const config = { api: { bodyParser: false } };
 
 export const handler = async (event) => {
   const headers = event.headers;
@@ -15,11 +13,9 @@ export const handler = async (event) => {
 
   return new Promise((resolve) => {
     const busboy = Busboy({ headers });
-    let fileBuffer = Buffer.alloc(0),
-        filename = "",
-        mimetype = "";
+    let fileBuffer = Buffer.alloc(0), filename = "", mimetype = "";
 
-    busboy.on("file", (_field, file, fname, _enc, mimetypeArg) => {
+    busboy.on("file", (_f, file, fname, _enc, mimetypeArg) => {
       filename = fname;
       mimetype = mimetypeArg;
       file.on("data", (chunk) => {
@@ -30,30 +26,23 @@ export const handler = async (event) => {
     busboy.on("finish", async () => {
       try {
         const timestamp = new Date().toISOString();
-
-        // **Získame store**, v ktorom budeme držať posledný upload
-        const userUploadStore = getStore("userupload", {
-          consistency: "strong",    // optional, ak potrebuješ silnú konzistenciu
+        // Použijeme SITE_ID a NETLIFY_API_TOKEN
+        const store = getStore("userupload", {
+          siteId: process.env.SITE_ID,
+          token: process.env.NETLIFY_API_TOKEN,
+          consistency: "strong",
         });
 
-        // **Uložíme** blob pod kľúč "latest"
-        await userUploadStore.set("latest", {
+        await store.set("latest", {
           filename,
           mimetype,
           content: fileBuffer.toString("base64"),
           timestamp,
         });
 
-        // **Redirect** späť na blobs.html
-        resolve({
-          statusCode: 302,
-          headers: { Location: "/blobs.html" },
-        });
+        resolve({ statusCode: 302, headers: { Location: "/blobs.html" } });
       } catch (err) {
-        resolve({
-          statusCode: 500,
-          body: `Error saving blob: ${err.message}`,
-        });
+        resolve({ statusCode: 500, body: `Error saving blob: ${err.message}` });
       }
     });
 
