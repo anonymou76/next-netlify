@@ -16,13 +16,16 @@ export const handler = async () => {
       return { statusCode: 404, body: "No image found" };
     }
 
+    // Parsujeme JSON, aby sme dostali pôvodné polia
+    const data = JSON.parse(result.content);
+
     return {
       statusCode: 200,
       isBase64Encoded: true,
       headers: {
-        "Content-Type": result.metadata?.mimetype || "application/octet-stream",
+        "Content-Type": data.mimetype,
       },
-      body: result.content,
+      body: data.content,
     };
   } catch (err) {
     return {

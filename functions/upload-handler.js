@@ -36,12 +36,16 @@ export const handler = async (event) => {
           token: process.env.NETLIFY_TOKEN,
         });
 
-        await store.set("latest", {
-          filename,
-          mimetype,
-          content: fileBuffer.toString("base64"),
-          timestamp,
-        });
+        // Uložíme serializovaný objekt
+        await store.set(
+          "latest",
+          JSON.stringify({
+            filename,
+            mimetype,
+            content: fileBuffer.toString("base64"),
+            timestamp,
+          })
+        );
 
         resolve({
           statusCode: 302,
