@@ -8,46 +8,53 @@
 <body>
   <div class="container">
 
-  <div class="form-control">
-    <h1>Please log in</h1>
-  </div>
+    <div class="form-control">
+      <h1>Welcome!</h1>
+    </div>
 
+    <button class="btn" id="login-btn">Login</button>
+    <button class="btn" id="logout-btn" style="display:none;">Logout</button>
+    <p class="text"><a href="/">Home</a> </p>
 
-  <button class="btn" id="login-btn">Login</button>
-  <button class="btn" id="logout-btn" style="display:none;">Logout</button>
-  <p class="text"><a href="#">Home</a> </p>
+    <!-- Netlify Identity Widget -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script>
+      netlifyIdentity.init();
 
-  <!-- Netlify Identity Widget -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script>
-    netlifyIdentity.init();
+      const loginBtn = document.getElementById("login-btn");
+      const logoutBtn = document.getElementById("logout-btn");
 
-    const loginBtn = document.getElementById("login-btn");
-    const logoutBtn = document.getElementById("logout-btn");
+      loginBtn.onclick = () => netlifyIdentity.open();
+      logoutBtn.onclick = () => {
+        netlifyIdentity.logout();
+        // Vymažeme JWT cookie
+        document.cookie = "nf_jwt=; Max-Age=0; path=/";
+      };
 
-    loginBtn.onclick = () => netlifyIdentity.open();
-    logoutBtn.onclick = () => netlifyIdentity.logout();
+      netlifyIdentity.on("init", user => {
+        if (user) {
+          loginBtn.style.display = "none";
+          logoutBtn.style.display = "inline-block";
+        } else {
+          loginBtn.style.display = "inline-block";
+          logoutBtn.style.display = "none";
+        }
+      });
 
-    netlifyIdentity.on("init", user => {
-      if (user) {
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-      } else {
-        loginBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-      }
-    });
+      netlifyIdentity.on("login", async user => {
+        console.log("Logged in:", user);
+        const token = await user.jwt();
+        // Nastavíme JWT token ako cookie, ktorú Netlify vie použiť
+        document.cookie = `nf_jwt=${token}; path=/`;
+        // Redirect na / (alebo kamkoľvek)
+        window.location.href = "/";
+      });
 
-    netlifyIdentity.on("login", user => {
-      console.log("Logged in:", user);
-      window.location.href = "/form";
-    });
-
-    netlifyIdentity.on("logout", () => {
-      console.log("Logged out");
-      window.location.reload();
-    });
-  </script>
+      netlifyIdentity.on("logout", () => {
+        console.log("Logged out");
+        window.location.reload();
+      });
+    </script>
   </div>
 </body>
 </html>
