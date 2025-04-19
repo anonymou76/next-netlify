@@ -12,20 +12,25 @@ export const handler = async () => {
     });
 
     const result = await store.get("latest");
+
     if (!result || !result.content) {
       return { statusCode: 404, body: "No image found" };
     }
 
-    // Parsujeme JSON, aby sme dostali pôvodné polia
-    const data = JSON.parse(result.content);
+    // Tu sa robí dôležitý krok - parsovanie JSON
+    const parsed = JSON.parse(result.content);
+
+    if (!parsed.content || !parsed.mimetype) {
+      return { statusCode: 404, body: "Invalid blob data" };
+    }
 
     return {
       statusCode: 200,
       isBase64Encoded: true,
       headers: {
-        "Content-Type": data.mimetype,
+        "Content-Type": parsed.mimetype,
       },
-      body: data.content,
+      body: parsed.content,
     };
   } catch (err) {
     return {
