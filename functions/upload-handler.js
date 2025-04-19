@@ -1,15 +1,22 @@
 import { getStore } from "@netlify/blobs";
 
 export const handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method Not Allowed" };
+  }
+
   const formData = new URLSearchParams(event.body);
-  
-  // Získanie súboru z form-data
   const fileUpload = formData.get("fileUpload");
 
-  // Získanie timestampu
+  if (!fileUpload) {
+    return {
+      statusCode: 400,
+      body: "No file uploaded",
+    };
+  }
+
   const timestamp = Date.now();
 
-  // Načítanie Netlify Blobs store
   const userUploadStore = getStore({
     name: "UserUpload",
     consistency: "strong",
@@ -18,10 +25,12 @@ export const handler = async (event) => {
   });
 
   try {
-    // Uloženie súboru do store
+    // Predpokladáme, že 'fileUpload' je reťazec (napr. Base64 encoded data)
+    // Ak odosielaš FormData s reálnym súborom, budeš musieť použiť knižnicu ako 'busboy' alebo 'formidable'
+    // na jeho spracovanie a získanie obsahu ako Buffer alebo Blob.
+    // Pre jednoduchosť predpokladáme, že posielaš priamo obsah ako reťazec.
     await userUploadStore.set(timestamp.toString(), fileUpload);
 
-    // Presmerovanie späť na hlavnú stránku
     return {
       statusCode: 303,
       headers: {
@@ -31,7 +40,7 @@ export const handler = async (event) => {
   } catch (err) {
     return {
       statusCode: 500,
-      body: `Error uploading file: ${err.message}`,
+      body: `Error saving blob: ${err.message}`,
     };
   }
 };
