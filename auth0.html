@@ -66,12 +66,7 @@
 
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 
-    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
-
-<script>
-    // Spustí kód až po načítaní celého DOM
-    window.addEventListener("DOMContentLoaded", async () => {
-
+    <script>
         let auth0Client = null;
 
         // ==== TOTO SÚ ZÁSTUPNÉ TEXTY - NAHRADIA SA POČAS NETLIFY BUILDU ====
@@ -79,7 +74,7 @@
             domain: "__AUTH0_DOMAIN__", // TENTO ZÁSTUPNÝ TEXT BUDE NAHRADENÝ
             clientId: "__AUTH0_CLIENT_ID__",     // TENTO ZÁSTUPNÝ TEXT BUDE NAHRADENÝ
             authorizationParams: {
-                 redirect_uri: window.location.origin + "/auth0.html"
+                 redirect_uri: window.location.origin + "/auth0.html" 
             }
         };
         // ==================================================================
@@ -91,40 +86,36 @@
         const userEmailSpan = document.getElementById("user-email");
         const protectedContentDiv = document.getElementById("protected-content");
 
-         loginBtn.addEventListener("click", login);
-         logoutBtn.addEventListener("click", logout);
-
-
         const configureClient = async () => {
             if (auth0Config.domain.startsWith("__AUTH0_") || auth0Config.clientId.startsWith("__AUTH0_")) {
                 console.error("Auth0 Domain or Client ID were not properly replaced during build.");
-                return;
+                return; 
             }
 
             try {
                auth0Client = await auth0.createAuth0Client(auth0Config);
 
-                await updateUI(); 
+                await updateUI();
 
                 const query = window.location.search;
                 if (query.includes("code=") && query.includes("state=")) {
                     try {
                         await auth0Client.handleRedirectCallback();
                         console.log("Redirect callback handled.");
-                        window.history.replaceState({}, document.title, window.location.pathname); 
+                        window.history.replaceState({}, document.title, "/auth0.html"); 
                     } catch (e) {
                         console.error("Error handling redirect callback:", e);
                     }
-                    await updateUI(); 
+                    await updateUI();
                 }
             } catch (error) {
-                console.error("Failed to initialize Auth0 client:", error);
+                 console.error("Failed to initialize Auth0 client:", error);
             }
         };
 
 
         const updateUI = async () => {
-            if (!auth0Client) return;
+            if (!auth0Client) return; 
 
             const isAuthenticated = await auth0Client.isAuthenticated();
 
@@ -167,7 +158,7 @@
 
 
         const logout = async () => {
-            if (!auth0Client) return;
+            if (!auth0Client) return; 
             try {
                await auth0Client.logout({
                    logoutParams: {
@@ -179,11 +170,14 @@
             }
         };
 
+
+         loginBtn.addEventListener("click", login);
+         logoutBtn.addEventListener("click", logout);
+
+
         configureClient();
 
-    }); 
-
-</script>
+    </script>
 
 </body>
 </html>
