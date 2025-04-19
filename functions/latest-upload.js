@@ -14,38 +14,24 @@ export const handler = async () => {
     const result = await store.get("latest");
 
     if (!result || !result.content) {
-      return { statusCode: 404, body: "No image found - result.content empty" };
+      return { statusCode: 404, body: "No image found" };
     }
 
-    let parsed;
-    try {
-      parsed = JSON.parse(result.content);
-    } catch (jsonErr) {
-      return {
-        statusCode: 500,
-        body: `JSON parse error: ${jsonErr.message}\nRaw content: ${result.content}`,
-      };
-    }
-
-    if (!parsed.content || !parsed.mimetype) {
-      return {
-        statusCode: 404,
-        body: `Invalid blob data. Parsed: ${JSON.stringify(parsed)}`,
-      };
-    }
+    const contentType = result.metadata?.mimetype || "application/octet-stream";
 
     return {
       statusCode: 200,
-      isBase64Encoded: true,
+      isBase64Encoded: true, // Potrebné, ak vraciaš binárny obsah
       headers: {
-        "Content-Type": parsed.mimetype,
+        "Content-Type": contentType,
+        "Cache-Control": "no-store",
       },
-      body: parsed.content,
+      body: result.content.toString("base64"),
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: `General error: ${err.message}`,
+      body: `Error: ${err.message}`,
     };
   }
 };

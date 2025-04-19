@@ -3,8 +3,6 @@
 import Busboy from "busboy";
 import { getStore } from "@netlify/blobs";
 
-export const config = { api: { bodyParser: false } };
-
 export const handler = async (event) => {
   const headers = event.headers;
   const bodyBuffer = event.isBase64Encoded
@@ -20,6 +18,7 @@ export const handler = async (event) => {
     busboy.on("file", (_fieldname, file, fname, _enc, mimetypeArg) => {
       filename = fname;
       mimetype = mimetypeArg;
+
       file.on("data", (chunk) => {
         fileBuffer = Buffer.concat([fileBuffer, chunk]);
       });
@@ -34,10 +33,13 @@ export const handler = async (event) => {
           token: process.env.NETLIFY_TOKEN,
         });
 
-        await store.set("latest", fileBuffer.toString("base64"), {
-          filename,
-          mimetype,
-          timestamp: new Date().toISOString(),
+        // Ulož buffer priamo
+        await store.set("latest", fileBuffer, {
+          metadata: {
+            filename,
+            mimetype,
+            uploaded: new Date().toISOString(),
+          },
         });
 
         resolve({
