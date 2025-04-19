@@ -5,7 +5,7 @@
 
 [build]
   publish = "."
-  command = "npm install"
+  command = "npm install && sed -i 's|__AUTH0_DOMAIN__|'$SECRET_AUTH0_DOMAIN'|g' auth0.html && sed -i 's|__AUTH0_CLIENT_ID__|'$SECRET_AUTH0_CLIENT_ID'|g' auth0.html"
   functions = "functions"
 
 [dev]
