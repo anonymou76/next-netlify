@@ -4,10 +4,11 @@ import { getStore } from "@netlify/blobs";
 
 export const handler = async () => {
   try {
-    const store = getStore("userupload", {
-      siteId: process.env.SITE_ID,
-      token: process.env.NETLIFY_API_TOKEN,
+    const store = getStore({
+      name: "userupload",
       consistency: "strong",
+      siteID: process.env.NETLIFY_SITE_ID,
+      token: process.env.NETLIFY_TOKEN,
     });
 
     const result = await store.get("latest");
@@ -18,7 +19,9 @@ export const handler = async () => {
     return {
       statusCode: 200,
       isBase64Encoded: true,
-      headers: { "Content-Type": result.mimetype },
+      headers: {
+        "Content-Type": result.metadata?.mimetype || "application/octet-stream",
+      },
       body: result.content,
     };
   } catch (err) {

@@ -13,9 +13,11 @@ export const handler = async (event) => {
 
   return new Promise((resolve) => {
     const busboy = Busboy({ headers });
-    let fileBuffer = Buffer.alloc(0), filename = "", mimetype = "";
+    let fileBuffer = Buffer.alloc(0);
+    let filename = "";
+    let mimetype = "";
 
-    busboy.on("file", (_f, file, fname, _enc, mimetypeArg) => {
+    busboy.on("file", (_fieldname, file, fname, _enc, mimetypeArg) => {
       filename = fname;
       mimetype = mimetypeArg;
       file.on("data", (chunk) => {
@@ -26,11 +28,12 @@ export const handler = async (event) => {
     busboy.on("finish", async () => {
       try {
         const timestamp = new Date().toISOString();
-        // Použijeme SITE_ID a NETLIFY_API_TOKEN
-        const store = getStore("userupload", {
-          siteId: process.env.SITE_ID,
-          token: process.env.NETLIFY_API_TOKEN,
+
+        const store = getStore({
+          name: "userupload",
           consistency: "strong",
+          siteID: process.env.NETLIFY_SITE_ID,
+          token: process.env.NETLIFY_TOKEN,
         });
 
         await store.set("latest", {
@@ -40,9 +43,15 @@ export const handler = async (event) => {
           timestamp,
         });
 
-        resolve({ statusCode: 302, headers: { Location: "/blobs.html" } });
+        resolve({
+          statusCode: 302,
+          headers: { Location: "/blobs.html" },
+        });
       } catch (err) {
-        resolve({ statusCode: 500, body: `Error saving blob: ${err.message}` });
+        resolve({
+          statusCode: 500,
+          body: `Error saving blob: ${err.message}`,
+        });
       }
     });
 
