@@ -3,6 +3,8 @@
 import Busboy from "busboy";
 import { getStore } from "@netlify/blobs";
 
+export const config = { api: { bodyParser: false } };
+
 export const handler = async (event) => {
   const headers = event.headers;
   const bodyBuffer = event.isBase64Encoded
@@ -27,24 +29,18 @@ export const handler = async (event) => {
     busboy.on("finish", async () => {
       try {
         const store = getStore({
-          name: "userupload",
+          name: "userupload", // Môžeš si nastaviť akýkoľvek názov pre Blob úložisko
           consistency: "strong",
           siteID: process.env.NETLIFY_SITE_ID,
           token: process.env.NETLIFY_TOKEN,
         });
 
-        // Uložíme obrázok s MIME typom a metadátami
-        await store.set("latest", fileBuffer, {
-          metadata: {
-            filename,
-            mimetype,  // Dôležité je priradiť správny mimetype
-            uploaded: new Date().toISOString(),
-          },
-        });
+        // Uložíme obrázok s pôvodným názvom
+        await store.set(filename, fileBuffer, { mimetype });
 
         resolve({
           statusCode: 302,
-          headers: { Location: "/blobs.html" },
+          headers: { Location: "/blobs.html" }, // Po úspešnom nahratí presmeruj na inú stránku
         });
       } catch (err) {
         resolve({
