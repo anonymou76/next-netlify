@@ -18,7 +18,7 @@ export const handler = async (event) => {
     let mimetype = "";
 
     busboy.on("file", (_fieldname, file, fname, _enc, mimetypeArg) => {
-      filename = fname; // Uistíme sa, že 'filename' je reťazec
+      filename = fname || "default_filename"; // Zabezpečíme, že filename bude reťazec, ak nie je prítomný
       mimetype = mimetypeArg;
 
       file.on("data", (chunk) => {
@@ -35,9 +35,9 @@ export const handler = async (event) => {
           token: process.env.NETLIFY_TOKEN,
         });
 
-        // Skontrolujeme, či je filename reťazec, a použijeme ho ako kľúč
-        if (typeof filename !== "string") {
-          throw new Error("Filename must be a string");
+        // Skontrolujeme, či je filename reťazec
+        if (typeof filename !== "string" || filename.trim() === "") {
+          throw new Error("Filename must be a valid string");
         }
 
         await store.set(filename, fileBuffer, { mimetype });
