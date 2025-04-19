@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth0 Prihlásenie</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        #auth-nav {
+            margin-bottom: 20px;
+        }
+        #protected-content {
+            display: none; /* Skryté, kým sa používateľ neprihlási */
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+  <div class="container" style="background-color: rgba(0, 0, 0, 0.4);
+    padding: 25px 50px;
+    border-radius: 5px;">
+    <div class="form-control">
+      <h1>Auth0 login</h1>
+    </div>
+
+    <div id="auth-nav">
+        <button class="btn" id="login-btn">Login</button>
+        <button class="btn" id="logout-btn" class="hidden">Odhlásiť sa</button>
+    </div>
+
+    <div id="user-info" class="hidden">
+        <h2>Informácie o používateľovi:</h2>
+        <p><strong>Meno:</strong> <span id="user-name"></span></p>
+        <p><strong>Email:</strong> <span id="user-email"></span></p>
+        </div>
+
+    <p class="text"><a href="/">Home </a> / <a href="/blobs.html"> Blobs </a> / <a href="/form.html"> Form </a></p>
+    <div id="protected-content">
+        <h2>Táto časť je len pre prihlásených používateľov!</h2>
+        <p>Ak toto vidíte, ste úspešne prihlásení cez Auth0.</p>
+    </div>
+  </div>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+
+    <script>
+        let auth0Client = null;
+
+        // ==== NASTAVTE SI VLASTNÉ HODNOTY Z VÁŠHO AUTH0 TENANTA A APLIKÁCIE ====
+        // V produkcii by ste mali získať tieto hodnoty z environmentálnych premenných Netlify!
+        const auth0Config = {
+            domain: "dev-cdka82baw7pg4ujy.auth0.com", // Napr. dev-xxxxx.eu.auth0.com
+            clientId: "FGhMyq3iapfmEAHc2IPDOdCJ53PFDH1G",     // ID vašej SPA aplikácie v Auth0
+            authorizationParams: {
+                 redirect_uri: window.location.origin // URL, na ktorú sa Auth0 vráti po prihlásení
+            }
+        };
+        // ==================================================================
+
+        const loginBtn = document.getElementById("login-btn");
+        const logoutBtn = document.getElementById("logout-btn");
+        const userInfoDiv = document.getElementById("user-info");
+        const userNameSpan = document.getElementById("user-name");
+        const userEmailSpan = document.getElementById("user-email");
+        const protectedContentDiv = document.getElementById("protected-content");
+
+        // Inicializácia Auth0 klienta
+        const configureClient = async () => {
+            auth0Client = await auth0.createAuth0Client(auth0Config);
+
+            // Po inicializácii skontrolujte stav prihlásenia a aktualizujte UI
+            await updateUI();
+
+            // Skontrolujte, či ide o callback z Auth0 (po prihlásení/registrácii)
+            const query = window.location.search;
+            if (query.includes("code=") && query.includes("state=")) {
+                try {
+                    await auth0Client.handleRedirectCallback();
+                    console.log("Redirect callback handled.");
+                    // Odstráňte parametry z URL pre čistejší vzhľad
+                    window.history.replaceState({}, document.title, "/");
+                } catch (e) {
+                    console.error("Error handling redirect callback:", e);
+                }
+                // Aktualizujte UI znova po spracovaní callbacku
+                await updateUI();
+            }
+        };
+
+        // Aktualizácia UI na základe stavu prihlásenia
+        const updateUI = async () => {
+            const isAuthenticated = await auth0Client.isAuthenticated();
+
+            if (isAuthenticated) {
+                const user = await auth0Client.getUser();
+                console.log("Používateľ prihlásený:", user);
+
+                loginBtn.classList.add("hidden");
+                logoutBtn.classList.remove("hidden");
+                userInfoDiv.classList.remove("hidden");
+                protectedContentDiv.style.display = "block"; // Zobraziť chránený obsah
+
+                userNameSpan.textContent = user.name || user.nickname || "Neznáme meno";
+                userEmailSpan.textContent = user.email || "Neznámy email";
+
+            } else {
+                console.log("Používateľ odhlásený.");
+                loginBtn.classList.remove("hidden");
+                logoutBtn.classList.add("hidden");
+                userInfoDiv.classList.add("hidden");
+                protectedContentDiv.style.display = "none"; // Skryť chránený obsah
+
+                userNameSpan.textContent = "";
+                userEmailSpan.textContent = "";
+            }
+        };
+
+        // Funkcia pre prihlásenie
+        const login = async () => {
+            await auth0Client.loginWithRedirect();
+        };
+
+        // Funkcia pre odhlásenie
+        const logout = async () => {
+            await auth0Client.logout({
+                logoutParams: {
+                    returnTo: window.location.origin // URL, na ktorú sa vráti po odhlásení
+                }
+            });
+        };
+
+        // Pridanie poslucháčov na tlačidlá
+        loginBtn.addEventListener("click", login);
+        logoutBtn.addEventListener("click", logout);
+
+        // Konfigurácia klienta pri načítaní stránky
+        configureClient();
+
+    </script>
+
+</body>
+</html>
