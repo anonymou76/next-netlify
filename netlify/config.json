@@ -1,0 +1,22 @@
+{
+    "editor": {
+      "collections": [
+        {
+          "label": "Pages",
+          "name": "pages",
+          "files": [
+            {
+              "label": "Home Page",
+              "name": "home",
+              "file": "index.html",
+              "fields": [
+                { "label": "Headline", "name": "headline", "selector": "h1" },
+                { "label": "Paragraph", "name": "paragraph", "selector": "p" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+  
